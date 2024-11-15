@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CRUD de Perguntas</title>
+</head>
+<body>
+    <h1>CRUD de Perguntas</h1>
+
+    <h2>Adicionar Pergunta</h2>
+    <input type="text" id="novaPergunta" placeholder="Digite a nova pergunta">
+    <button onclick="adicionarPergunta()">Adicionar</button>
+
+    <h2>Lista de Perguntas</h2>
+    <button onclick="listarPerguntas()">Atualizar Lista</button>
+    <ul id="listaPerguntas"></ul>
+
+    <h2>Atualizar Pergunta</h2>
+    <input type="number" id="idPerguntaAtualizar" placeholder="ID da pergunta">
+    <input type="text" id="perguntaAtualizada" placeholder="Nova pergunta">
+    <button onclick="atualizarPergunta()">Atualizar</button>
+
+    <h2>Deletar Pergunta</h2>
+    <input type="number" id="idPerguntaDeletar" placeholder="ID da pergunta">
+    <button onclick="deletarPergunta()">Deletar</button>
+
+    <p id="resultado"></p>
+
+    <script>
+   
+        function adicionarPergunta() {
+            const pergunta = document.getElementById('novaPergunta').value;
+            const xhr = new XMLHttpRequest();
+            xhr.open('POST', 'crudPerguntas.php', true);
+            xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+            xhr.onreadystatechange = function () {
+                if (xhr.readyState === XMLHttpRequest.DONE) {
+                    document.getElementById('resultado').innerText = xhr.responseText;
+                    listarPerguntas(); // Atualiza a lista automaticamente
+                }
+            };
+            xhr.send('acao=create&pergunta=' + encodeURIComponent(pergunta));
+        }
+
+        function listarPerguntas() {
+            const xhr = new XMLHttpRequest();
+            xhr.open('GET', 'crudPerguntas.php?acao=read', true);
+            xhr.onreadystatechange = function () {
+                if (xhr.readyState === XMLHttpRequest.DONE && xhr.status === 200) {
+                    const lista = JSON.parse(xhr.responseText);
+                    const listaHtml = lista.map(pergunta => `<li>ID: ${pergunta.id} - ${pergunta.texto}</li>`).join('');
+                    document.getElementById('listaPerguntas').innerHTML = listaHtml;
+                }
+            };
+            xhr.send();
+        }
+
+        function atualizarPergunta() {
+            const id = document.getElementById('idPerguntaAtualizar').value;
+            const novaPergunta = document.getElementById('perguntaAtualizada').value;
+            const xhr = new XMLHttpRequest();
+            xhr.open('POST', 'crudPerguntas.php', true);
+            xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+            xhr.onreadystatechange = function () {
+                if (xhr.readyState === XMLHttpRequest.DONE) {
+                    document.getElementById('resultado').innerText = xhr.responseText;
+                    listarPerguntas();
+                }
+            };
+            xhr.send('acao=update&id=' + encodeURIComponent(id) + '&pergunta=' + encodeURIComponent(novaPergunta));
+        }
+
+        // Delete
+        function deletarPergunta() {
+            const id = document.getElementById('idPerguntaDeletar').value;
+            const xhr = new XMLHttpRequest();
+            xhr.open('POST', 'crudPerguntas.php', true);
+            xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+            xhr.onreadystatechange = function () {
+                if (xhr.readyState === XMLHttpRequest.DONE) {
+                    document.getElementById('resultado').innerText = xhr.responseText;
+                    listarPerguntas();
+                }
+            };
+            xhr.send('acao=delete&id=' + encodeURIComponent(id));
+        }
+    </script>
+</body>
+</html>
